@@ -8,7 +8,8 @@ import javax.swing.JTextField;
 
 
 public class Main{
-    public static int rows = 20, cols = 20, room = 1, playerx = 9, playery = 9, deathMethod = 0,
+    public static int rows = 20, cols = 20, room = 1, playerx = 9, playery = 9, deathMethod = 0, gameTable[][] = new int[rows][cols], mainRoom[][] = new int[20][20], northRoom[][] = new int[rows][cols], southRoom[][] = new int[rows][cols], eastRoom[][] = new int[rows][cols], westRoom[][] = new int[rows][cols];
+
     public static int itemM = 0, itemA = 0, itemC = 0, itemH = 0, itemI = 0, itemN = 0, itemE = 0;
 
     public static boolean playerLife = Boolean.TRUE;
@@ -58,7 +59,6 @@ public class Main{
     }
 
     public static boolean checkWin(){
-
         if (itemM+itemA+itemC+itemH+itemI+itemN+itemE == 7){
             playerLife = Boolean.FALSE;
             return true;
@@ -80,7 +80,7 @@ public class Main{
 
         /*8 = floor or roof | 9 = wall | 2, 3, 4, 5, 6 are portals to other rooms*/
 
-        for (int i = 0; i<=4; i++){
+        for (int i = 0; i<=10; i++){
             itemKillerX = generateRandom(3,16);
             itemKillerY = generateRandom(3, 16);
             itemKillerXR = generateRandom(0, 3);
@@ -155,7 +155,6 @@ public class Main{
     }
 
     public static void drawGame() {
-            /*draw game here*/
 
         switch (room)
         {
@@ -274,21 +273,26 @@ public class Main{
         System.out.println("Machine Game\n\n Rules: You have to build a machine that will let you escape the dungeon which you are trapped in.\n If you stay in the dungeon for over 5 minutes you will die due to toxic gas.\nYou are not able to see how much time you have left until falling to the toxic gas.\n Using the wrong parts while building the machine will kill you.\n Running out of time will kill you.\n Press any key to begin.");
     }
 
+    public static void CLS() throws IOException, InterruptedException {
+        new ProcessBuilder("cmd",
+                "/c",
+                "cls").inheritIO().start().waitFor();
+    }
+
     public static void gameExit(){
         try {
-            CLS.main(); // delete last frame
+            CLS(); // delete last frame
         } catch (IOException | InterruptedException e){}
 
         switch (deathMethod){
             case 0:
-                System.out.println("Congratulations on surviving!\n It took you: " + elapsedMinutes + " Minutes and " + (elapsedSeconds-60*elapsedMinutes) + " seconds.");
+                System.out.println("Congratulations on surviving!\n It took you: " + elapsedMinutes + " Minutes and " + elapsedSeconds + " seconds.");
                 break;
             case 1:
                 System.out.println("You died to toxic gas");
                 break;
             case 2:
-                System.out.println("You picked up the wrong part and got electrocuted. You survived for: " + elapsedMinutes + " Minutes and " + (elapsedSeconds-60*elapsedMinutes) + " seconds." +
-                        "");
+                System.out.println("You picked up the wrong part and got electrocuted. You survived for: " + elapsedMinutes + " Minutes and " + elapsedSeconds + " seconds");
                 break;
         }
         System.out.print("Press ENTER to exit.");
@@ -338,56 +342,56 @@ class MKeyListener extends KeyAdapter{
     }
 
     public void gamePortals(){
-        if (surrounding(2)) // main to north
+        if (Main.gameTable[Main.playery-1][Main.playerx] == 2) // main to north
         {
             Main.gameTable = Main.northRoom;
             Main.playery = 17;
             Main.playerx = 9;
             Main.room = 2;
         }
-        else if (surrounding(4)) // main to east
+        else if (Main.gameTable[Main.playery][Main.playerx+1] == 4) // main to east
         {
             Main.gameTable = Main.eastRoom;
             Main.playery = 9;
             Main.playerx = 2;
             Main.room = 4;
         }
-        else if (surrounding(6))// main to west
+        else if (Main.gameTable[Main.playery][Main.playerx-1] == 6)// main to west
         {
             Main.gameTable = Main.westRoom;
             Main.playery = 9;
             Main.playerx = 17;
             Main.room = 5;
         }
-        else if (surrounding(5)) // main to south
+        else if (Main.gameTable[Main.playery+1][Main.playerx] == 5) // main to south
         {
             Main.gameTable = Main.southRoom;
             Main.playery = 2;
             Main.playerx = 9;
             Main.room = 3;
         }
-        else if (surrounding(3) && Main.room == 2) // north to main
+        else if (Main.gameTable[Main.playery+1][Main.playerx] == 3 && Main.room == 2) // north to main
         {
             Main.gameTable = Main.mainRoom;
             Main.playery = 1;
             Main.playerx = 9;
             Main.room = 1;
         }
-        else if (surrounding(3) && Main.room == 4) // east to main
+        else if (Main.gameTable[Main.playery][Main.playerx-1] == 3 && Main.room == 4) // east to main
         {
             Main.gameTable = Main.mainRoom;
             Main.playery = 9;
             Main.playerx = 17;
             Main.room = 1;
         }
-        else if (surrounding(3) && Main.room == 5) // west to main
+        else if (Main.gameTable[Main.playery][Main.playerx+1] == 3 && Main.room == 5) // west to main
         {
             Main.gameTable = Main.mainRoom;
             Main.playery = 9;
             Main.playerx = 1;
             Main.room = 1;
         }
-        else if (surrounding(3) && Main.room == 3) // south to main
+        else if (Main.gameTable[Main.playery-1][Main.playerx] == 3 && Main.room == 3) // south to main
         {
             Main.gameTable = Main.mainRoom;
             Main.playery = 18;
@@ -397,9 +401,8 @@ class MKeyListener extends KeyAdapter{
     }
 
     boolean surrounding(int x){
-        if  (Main.gameTable[Main.playery +1][Main.playerx] == x | Main.gameTable[Main.playery -1 ][Main.playerx] == x | Main.gameTable[Main.playery][Main.playerx + 1] == x | Main.gameTable[Main.playery][Main.playerx - 1] == x) {
+        if  (Main.gameTable[Main.playery +1][Main.playerx] == x | Main.gameTable[Main.playery -1 ][Main.playerx] == x | Main.gameTable[Main.playery][Main.playerx + 1] == x | Main.gameTable[Main.playery][Main.playerx - 1] == x)
             return true;
-        }
         return false;
     }
 
@@ -435,7 +438,7 @@ class MKeyListener extends KeyAdapter{
         if (item == 0){
             Main.numRoom(itemR)[itemY][itemX] = itemNum;
         }
-        else Main.numRoom(itemR)[itemY][itemX] = 0; 
+        else Main.numRoom(itemR)[itemY][itemX] = 0;
     }
 
     public void machinePart(){
@@ -451,12 +454,12 @@ class MKeyListener extends KeyAdapter{
     public void keyPressed(KeyEvent event) {
 
         try {
-            CLS.main(); // delete last frame on key press
+            Main.CLS(); // delete last frame on key press
         } catch (IOException | InterruptedException e){}
 
         playerMovement(event.getKeyCode());
         gamePortals();
-        Main.gameTable[Main.playery][Main.playerx] = 1; // make the given coords the actual player
+        Main.gameTable[Main.playery][Main.playerx] = 1; // make the given cords the actual player
         Main.checkTimer(); // check time
         machinePickup();
         machinePart();
@@ -478,14 +481,5 @@ class MKeyListener extends KeyAdapter{
                 System.exit(0);
             }
         }
-    }
-}
-
-class CLS {
-    public static void main(String... arg) throws IOException,
-            InterruptedException{
-        new ProcessBuilder("cmd",
-                "/c",
-                "cls").inheritIO().start().waitFor();
     }
 }
